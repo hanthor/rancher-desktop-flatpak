@@ -2,16 +2,24 @@
 
 Flatpak package for [Rancher Desktop](https://rancherdesktop.io) — container management and Kubernetes on the desktop.
 
-## Install (Pre-built)
+## Install
 
-Download the latest Flatpak bundle built from `main`:
+### Via Flatpakref (recommended)
 
 ```bash
-# Download latest build
+flatpak install https://raw.githubusercontent.com/hanthor/rancher-desktop-flatpak/main/io.rancherdesktop.app.flatpakref
+flatpak run io.rancherdesktop.app
+```
+
+This installs from the live repository hosted on GitHub Pages, keeping the initial download small and enabling delta updates.
+
+### Via Pre-built Bundle
+
+Download the latest bundle built from `main`:
+
+```bash
 wget https://nightly.link/hanthor/rancher-desktop-flatpak/workflows/build/main/rancher-desktop-flatpak.zip
 unzip rancher-desktop-flatpak.zip
-
-# Install and run
 flatpak --user install io.rancherdesktop.app.flatpak -y
 flatpak run io.rancherdesktop.app
 ```
@@ -33,16 +41,9 @@ flatpak run io.rancherdesktop.app
 | `just run` | Run the installed Flatpak |
 | `just clean` | Remove build artifacts |
 
-```bash
-# Example: full build and run
-just deps
-just install
-just run
-```
-
 ## CI
 
-A GitHub Actions workflow builds the Flatpak on every push to `main` and on pull requests. On PRs, a bot comment is posted with one-click install instructions.
+A GitHub Actions workflow builds the Flatpak on every push to `main` and on pull requests. On pushes to `main`, the OSTree repository is automatically deployed to GitHub Pages (used by the `.flatpakref`). On PRs, a bot comment is posted with bundle install instructions.
 
 ## Updating to a New Release
 
