@@ -1,0 +1,92 @@
+name: Build Flatpak
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: ["main"]
+
+jobs:
+  flatpak:
+    name: Build Flatpak Bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Flatpak dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y --user flathub \
+            org.freedesktop.Platform//25.08 \
+            org.freedesktop.Sdk//25.08 \
+            org.electronjs.Electron2.BaseApp//25.08
+
+      - name: Build Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: io.rancherdesktop.app.flatpak
+          manifest-path: io.rancherdesktop.app.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rancher-desktop-flatpak
+          path: io.rancherdesktop.app.flatpak
+          retention-days: 7
+
+      - name: Comment PR with install instructions
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const artifactName = 'rancher-desktop-flatpak';
+            const nightlyLink = `https://nightly.link/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/${artifactName}.zip`;
+
+            const body = `### 📦 Flatpak Build Ready for Testing!
+
+            A Flatpak bundle has been built for this Pull Request.
+
+            To test locally:
+
+            \`\`\`bash
+            # Download and extract
+            wget ${nightlyLink}
+            unzip ${artifactName}.zip
+
+            # Install and run
+            flatpak --user install io.rancherdesktop.app.flatpak -y
+            flatpak run io.rancherdesktop.app
+            \`\`\`
+            `;
+
+            const opts = github.rest.issues.listComments.endpoint.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const comments = await github.paginate(opts);
+            const existingComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Flatpak Build Ready for Testing!')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
