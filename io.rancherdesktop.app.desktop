@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Rancher Desktop
+Comment=Container Management and Kubernetes on the Desktop
+Exec=run.sh %U
+Icon=io.rancherdesktop.app
+Terminal=false
+Type=Application
+Categories=Development;Utility;
+StartupWMClass=rancher-desktop
+Keywords=kubernetes;container;docker;podman;nerdctl;k3s;
+MimeType=x-scheme-handler/x-]rancher-desktop;

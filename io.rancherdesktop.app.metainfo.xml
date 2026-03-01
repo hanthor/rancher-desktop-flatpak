@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.rancherdesktop.app</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <name>Rancher Desktop</name>
+  <summary>Container Management and Kubernetes on the Desktop</summary>
+  <developer id="io.rancherdesktop">
+    <name>SUSE LLC</name>
+  </developer>
+  <description>
+    <p>
+      Rancher Desktop is an open-source application that provides container management
+      and Kubernetes on the desktop. It runs on Linux, macOS, and Windows.
+    </p>
+    <p>Key features include:</p>
+    <ul>
+      <li>Choice of container engine: dockerd (moby) or containerd</li>
+      <li>Built-in Kubernetes powered by K3s</li>
+      <li>Bundled CLI tools: docker, nerdctl, kubectl, helm, and more</li>
+      <li>Container image building with docker build or nerdctl build</li>
+      <li>Support for Docker Desktop Extensions</li>
+      <li>Port forwarding for container and Kubernetes services</li>
+    </ul>
+  </description>
+  <url type="homepage">https://rancherdesktop.io</url>
+  <url type="bugtracker">https://github.com/rancher-sandbox/rancher-desktop/issues</url>
+  <url type="help">https://docs.rancherdesktop.io</url>
+  <url type="vcs-browser">https://github.com/rancher-sandbox/rancher-desktop</url>
+  <launchable type="desktop-id">io.rancherdesktop.app.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/rak-phillip/rancher-desktop/assets/835961/4f5fcb33-d381-4900-a836-685eab3af441</image>
+      <caption>Rancher Desktop container management interface</caption>
+    </screenshot>
+  </screenshots>
+  <categories>
+    <category>Development</category>
+    <category>Utility</category>
+  </categories>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="1.22.0" date="2026-01-20">
+      <description>
+        <ul>
+          <li>Selectable moby storage driver (classic vs containerd-snapshotter)</li>
+          <li>Docker 29 in the VM (Alpine Linux 3.23)</li>
+          <li>Kubernetes Dashboard improvements (pod log streaming)</li>
+          <li>Docker Compose 5.0</li>
+          <li>Helm 4.0</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+</component>

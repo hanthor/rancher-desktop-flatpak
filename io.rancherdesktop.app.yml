@@ -1,0 +1,84 @@
+app-id: io.rancherdesktop.app
+runtime: org.freedesktop.Platform
+runtime-version: "25.08"
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: "25.08"
+command: run.sh
+separate-locales: false
+finish-args:
+  # Display
+  - "--socket=wayland"
+  - "--socket=fallback-x11"
+  - "--share=ipc"
+  - "--device=dri"
+  # KVM access for Lima/QEMU virtual machines
+  - "--device=kvm"
+  # Network access
+  - "--share=network"
+  # Home directory (config, caches, Lima VMs)
+  - "--filesystem=home"
+  # Read-only access to host /usr and /etc for detecting host tools
+  - "--filesystem=host-os:ro"
+  # Read-only access to /sys/module for nested virtualization check
+  - "--filesystem=/sys/module:ro"
+  # Container runtime sockets
+  - "--filesystem=xdg-run/podman:create"
+  - "--filesystem=xdg-run/containers:create"
+  - "--filesystem=/run/docker.sock"
+  # Lima VM sockets
+  - "--filesystem=xdg-run/lima:create"
+  # System D-Bus — required by Electron on startup
+  - "--socket=system-bus"
+  # D-Bus services
+  - "--talk-name=org.freedesktop.Notifications"
+  - "--talk-name=org.kde.StatusNotifierWatcher"
+  - "--talk-name=org.freedesktop.secrets"
+  - "--talk-name=org.kde.kwalletd6"
+  # Allow running host commands via flatpak-spawn --host
+  # Required for CLI tools (docker, nerdctl, kubectl, helm) to work
+  # with host container runtimes and Kubernetes
+  - "--talk-name=org.freedesktop.Flatpak"
+  # Fix cursor scaling on Wayland
+  - "--env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons"
+modules:
+  - name: rancher-desktop
+    buildsystem: simple
+    build-commands:
+      # The archive source extracts the zip contents
+      - cp -a rancher-desktop-zip /app/main
+      # Delete chrome-sandbox (Flatpak provides the sandbox)
+      - rm /app/main/chrome-sandbox
+      # Install icons from the bundled logo (source is 2134x2134, must resize all sizes)
+      - |
+        icon="/app/main/resources/resources/icons/logo-square-512.png"
+        for size in 32 64 128 256 512; do
+          mkdir -p "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/"
+          ffmpeg -i "${icon}" -vf "scale=${size}:${size}" "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/${FLATPAK_ID}.png" 2>/dev/null
+        done
+      # Install metainfo
+      - install -Dm644 io.rancherdesktop.app.metainfo.xml "${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml"
+      # Install desktop file
+      - install -Dm644 io.rancherdesktop.app.desktop "${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop"
+      # Install run script
+      - install -Dm755 -t /app/bin/ run.sh
+    sources:
+      # Pre-built Linux release zip (flat structure, no top-level dir)
+      - type: archive
+        url: https://github.com/rancher-sandbox/rancher-desktop/releases/download/v1.22.0/rancher-desktop-linux-v1.22.0.zip
+        sha256: 081bc82ac988b1467f6445dddb483395ca7b1aac2164594fd5f4e2cb7344ba6d
+        dest: rancher-desktop-zip
+        strip-components: 0
+      # Desktop integration files
+      - type: file
+        path: io.rancherdesktop.app.metainfo.xml
+      - type: file
+        path: io.rancherdesktop.app.desktop
+      # Wrapper to launch the app natively (bypassing legacy zypak)
+      - type: script
+        dest-filename: run.sh
+        commands:
+          - export TMPDIR="$XDG_RUNTIME_DIR/app/$FLATPAK_ID"
+          - export TMP="$TMPDIR"
+          - export TEMP="$TMPDIR"
+          - exec /app/main/rancher-desktop --no-sandbox --ozone-platform-hint=auto "$@"
