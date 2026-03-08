@@ -7,11 +7,21 @@ Flatpak package for [Rancher Desktop](https://rancherdesktop.io) — container m
 ### Via Flatpakref (recommended)
 
 ```bash
-flatpak install https://raw.githubusercontent.com/hanthor/rancher-desktop-flatpak/main/io.rancherdesktop.app.flatpakref
+flatpak install --user https://raw.githubusercontent.com/hanthor/rancher-desktop-flatpak/main/io.rancherdesktop.app.flatpakref
 flatpak run io.rancherdesktop.app
 ```
 
-This installs from the live repository hosted on GitHub Pages, keeping the initial download small and enabling delta updates.
+> [!IMPORTANT]
+> Since this repository is hosted on GitHub Pages and is not GPG-signed, Flatpak might refuse to install it by default. If you see a "Can't pull from untrusted non-gpg verified remote" error, you can manually add the remote first:
+>
+> ```bash
+> flatpak remote-add --user --no-gpg-verify rancher-desktop-flatpak https://hanthor.github.io/rancher-desktop-flatpak/
+> flatpak install --user rancher-desktop-flatpak io.rancherdesktop.app
+> ```
+
+> [!NOTE]
+> This requires the **Flathub** remote to be configured on your system to resolve dependencies. If you don't have it, run:
+> `flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo`
 
 ### Via Pre-built Bundle
 

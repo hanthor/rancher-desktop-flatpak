@@ -2,9 +2,10 @@
 Name=io.rancherdesktop.app
 Branch=master
 Url=https://hanthor.github.io/rancher-desktop-flatpak/
+IsRuntime=false
+RuntimeRepo=https://flathub.org/repo/flathub.flatpakrepo
 SuggestRemoteName=rancher-desktop-flatpak
 Title=Rancher Desktop
 Comment=Container management and Kubernetes on the desktop
 Description=Rancher Desktop is an open-source desktop application for container management and Kubernetes.
-Icon=https://raw.githubusercontent.com/hanthor/rancher-desktop-flatpak/main/io.rancherdesktop.app.desktop
-IsRuntime=false
+Icon=https://raw.githubusercontent.com/rancher-sandbox/rancher-desktop/main/resources/resources/icons/logo-square-512.png
